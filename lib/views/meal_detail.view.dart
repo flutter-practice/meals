@@ -16,10 +16,10 @@ class MealDetailView extends StatelessWidget {
     );
   }
 
-  Widget _createSectionWidget(Widget child) {
+  Widget _createSectionWidget(Widget child, {double height = 250}) {
     return Container(
       width: 330,
-      height: 250,
+      height: height,
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -33,11 +33,16 @@ class MealDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
     final meal = ModalRoute.of(context).settings.arguments as Meal;
+    final appBar = AppBar(
+      title: Text(meal.title),
+    );
+    final double statusBarHeight = mediaQuery.padding.top;
+    final availableHeight =
+        mediaQuery.size.height - appBar.preferredSize.height - statusBarHeight;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(meal.title),
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -52,6 +57,7 @@ class MealDetailView extends StatelessWidget {
             _createSectionTitle(context, 'Ingredients'),
             _createSectionWidget(
               ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: meal.ingredients.length,
                 itemBuilder: (ctx, index) {
                   return Card(
@@ -66,24 +72,29 @@ class MealDetailView extends StatelessWidget {
                   );
                 },
               ),
+              height: (meal.steps.length * 65.0) + 10,
             ),
             _createSectionTitle(context, 'Steps'),
-            _createSectionWidget(ListView.builder(
-              itemCount: meal.steps.length,
-              itemBuilder: (ctx, index) {
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        child: Text((index + 1).toString()),
+            _createSectionWidget(
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: meal.steps.length,
+                itemBuilder: (ctx, index) {
+                  return Column(
+                    children: [
+                      ListTile(
+                        leading: CircleAvatar(
+                          child: Text((index + 1).toString()),
+                        ),
+                        title: Text(meal.steps[index]),
                       ),
-                      title: Text(meal.steps[index]),
-                    ),
-                    Divider(),
-                  ],
-                );
-              },
-            ))
+                      Divider(),
+                    ],
+                  );
+                },
+              ),
+              height: (meal.steps.length * 75.0),
+            )
           ],
         ),
       ),
